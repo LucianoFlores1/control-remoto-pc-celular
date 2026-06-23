@@ -127,6 +127,25 @@ inicial fijo (ajustable en el código). Sin aceleración en el MVP.
 Se entrega un `.bat` (doble clic) que ejecuta `python server.py`, para el flujo
 "dos clics".
 
+## Facilidad de uso (cero fricción para usuarios perezosos)
+
+Objetivo: instalar y ejecutar en la PC con el mínimo absoluto de pasos.
+
+- **Ejecutable único con PyInstaller (`--onefile`).** Se empaqueta `server.py`,
+  todas las librerías (Flask, flask-sock, pynput, qrcode) y los archivos web
+  (`static/`) dentro de un solo `ControlRemoto.exe`. El usuario final **no
+  instala Python ni pip ni dependencias**: descarga el `.exe`, doble clic,
+  aparece el QR, escanea y usa. Para acceder a `static/` empaquetado se usa la
+  ruta de PyInstaller (`sys._MEIPASS`).
+- **Celular sin instalación** (es una web). Se agrega soporte "Agregar a
+  pantalla de inicio" (manifest PWA mínimo) para que quede como ícono tipo app
+  y reabra rápido.
+- **Aviso de SmartScreen:** la primera vez Windows puede advertir porque el
+  `.exe` no está firmado. Se documenta el paso "Más información → Ejecutar de
+  todas formas". (Firmar el ejecutable queda fuera del MVP.)
+- El `.bat` / `python server.py` se mantiene solo para desarrollo, no para el
+  usuario final.
+
 ## Manejo de errores
 
 - Si no se detecta IP local, avisar y caer a `0.0.0.0` con aviso.
@@ -166,9 +185,13 @@ static/
   index.html
   app.js
   style.css
+  manifest.webmanifest # PWA mínimo (agregar a pantalla de inicio)
 tests/
   test_decoder.py
   test_port.py
-iniciar.bat            # doble clic para arrancar
-requirements.txt       # flask, flask-sock, pynput, qrcode
+iniciar.bat            # arranque para DESARROLLO (python server.py)
+build.bat              # genera ControlRemoto.exe con PyInstaller (--onefile)
+requirements.txt       # flask, flask-sock, pynput, qrcode, pyinstaller
 ```
+
+Entregable para el usuario final: **`ControlRemoto.exe`** (un solo archivo).
