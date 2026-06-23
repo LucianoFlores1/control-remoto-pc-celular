@@ -44,6 +44,18 @@ def test_keys():
     assert c.calls == [("key", "win"), ("key", "esc"), ("key", "alttab")]
 
 
+def test_alttab_mode_keys():
+    c = FakeController()
+    for k in ("alttab_open", "alttab_next", "alttab_prev", "alttab_done"):
+        controller.dispatch({"t": "key", "k": k}, c)
+    assert c.calls == [
+        ("key", "alttab_open"),
+        ("key", "alttab_next"),
+        ("key", "alttab_prev"),
+        ("key", "alttab_done"),
+    ]
+
+
 def test_unknown_type_is_ignored():
     c = FakeController()
     controller.dispatch({"t": "nope"}, c)

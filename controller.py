@@ -1,7 +1,11 @@
 SENSITIVITY = 1.5
 
 _VALID_BUTTONS = {"left", "right"}
-_VALID_KEYS = {"win", "esc", "alttab"}
+_VALID_KEYS = {
+    "win", "esc", "alttab",
+    # modo selección de ventanas: mantiene Alt apretado entre toques
+    "alttab_open", "alttab_next", "alttab_prev", "alttab_done",
+}
 
 
 def dispatch(msg, controller):
@@ -58,8 +62,29 @@ class InputController:
         elif name == "esc":
             self._tap(Key.esc)
         elif name == "alttab":
+            # cambio rápido a la ventana anterior (un solo Alt+Tab)
             with self._kb.pressed(Key.alt):
                 self._tap(Key.tab)
+        elif name == "alttab_open":
+            # abre el selector y lo deja abierto (Alt queda apretado)
+            self._kb.press(Key.alt)
+            self._tap(Key.tab)
+        elif name == "alttab_next":
+            self._tap(Key.tab)               # avanza (Alt sigue apretado)
+        elif name == "alttab_prev":
+            with self._kb.pressed(Key.shift): # retrocede
+                self._tap(Key.tab)
+        elif name == "alttab_done":
+            self._kb.release(Key.alt)         # confirma la ventana elegida
+
+    def release_modifiers(self):
+        """Suelta Alt/Shift por si quedaron apretados (ej. el celular se
+        desconectó en medio de la selección de ventanas)."""
+        for mod in (Key.alt, Key.shift):
+            try:
+                self._kb.release(mod)
+            except Exception:
+                pass
 
     def _tap(self, key):
         self._kb.press(key)
