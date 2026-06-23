@@ -1,0 +1,9 @@
+{
+  "name": "Control Remoto",
+  "short_name": "Control",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "start_url": "/"
+}

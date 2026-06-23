@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Control Remoto</title>
+  <link rel="manifest" href="/static/manifest.webmanifest">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div id="status" class="disconnected">Conectando…</div>
+  <div id="pad">Deslizá para mover · tocá para clic</div>
+  <div id="keys">
+    <button data-key="win">⊞ Win</button>
+    <button data-key="esc">Esc</button>
+    <button data-key="alttab">Alt+Tab</button>
+  </div>
+  <div id="clicks">
+    <button data-click="left">Clic Izq</button>
+    <button data-click="right">Clic Der</button>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
