@@ -31,17 +31,27 @@ def index():
     return send_from_directory(app.static_folder, "index.html")
 
 
+@app.route("/favicon.ico")
+def favicon():
+    # El navegador siempre lo pide; sin esto loguea un 404 inofensivo.
+    return "", 204
+
+
 @sock.route("/ws")
 def ws(client):
-    while True:
-        data = client.receive()
-        if data is None:
-            break
-        try:
-            msg = json.loads(data)
-        except (ValueError, TypeError):
-            continue
-        dispatch(msg, controller)
+    try:
+        while True:
+            data = client.receive()
+            if data is None:
+                break
+            try:
+                msg = json.loads(data)
+            except (ValueError, TypeError):
+                continue
+            dispatch(msg, controller)
+    finally:
+        # si el cliente se cae con Alt apretado (selección de ventanas), lo soltamos
+        controller.release_modifiers()
 
 
 def print_qr(url):

@@ -76,3 +76,13 @@ document.querySelectorAll("[data-click]").forEach((b) =>
   b.addEventListener("click", () => send({ t: "click", btn: b.dataset.click })));
 document.querySelectorAll("[data-key]").forEach((b) =>
   b.addEventListener("click", () => send({ t: "key", k: b.dataset.key })));
+
+// --- Alt+Tab modo selección: Alt queda apretado hasta "Elegir" ---
+const altpanel = document.getElementById("altpanel");
+document.querySelectorAll("[data-alt]").forEach((b) =>
+  b.addEventListener("click", () => {
+    const action = b.dataset.alt;
+    send({ t: "key", k: "alttab_" + action });   // open | next | prev | done
+    if (action === "open") altpanel.classList.remove("hidden");
+    else if (action === "done") altpanel.classList.add("hidden");
+  }));
