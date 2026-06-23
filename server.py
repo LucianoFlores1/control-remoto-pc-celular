@@ -1,11 +1,25 @@
 # server.py
 import json
+import sys
 import qrcode
 from flask import Flask, send_from_directory
 from flask_sock import Sock
 
 import netutil
 from controller import InputController, dispatch
+
+
+def _enable_utf8_console():
+    """La consola por defecto de Windows (cp1252) muestra los bloques del QR
+    como basura ('â–ˆ' en vez de '█'), y entonces la cámara no lo puede leer.
+    Forzamos la consola y stdout a UTF-8 para que el QR se vea y sea escaneable."""
+    try:
+        if sys.platform == "win32":
+            import ctypes
+            ctypes.windll.kernel32.SetConsoleOutputCP(65001)
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 
 app = Flask(__name__, static_folder=netutil.resource_path("static"), static_url_path="/static")
 sock = Sock(app)
@@ -31,23 +45,14 @@ def ws(client):
 
 
 def print_qr(url):
-    import io
-    import sys
     qr = qrcode.QRCode(border=1)
     qr.add_data(url)
     qr.make(fit=True)
-    # Capture ASCII output and print with encoding handling
-    buffer = io.StringIO()
-    qr.print_ascii(invert=True, out=buffer)
-    output = buffer.getvalue()
-    # Write to stdout with UTF-8 encoding on Windows
-    try:
-        print(output, end='')
-    except UnicodeEncodeError:
-        sys.stdout.buffer.write(output.encode('utf-8', errors='replace'))
+    qr.print_ascii(invert=True)
 
 
 def main():
+    _enable_utf8_console()
     ip = netutil.get_local_ip()
     port = netutil.find_free_port(start=8000)
     url = f"http://{ip}:{port}"
