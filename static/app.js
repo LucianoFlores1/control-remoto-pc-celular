@@ -2,13 +2,16 @@ const statusEl = document.getElementById("status");
 const pad = document.getElementById("pad");
 
 let ws = null;
+let reconnectTimer = null;
 function connect() {
+  reconnectTimer = null;
   ws = new WebSocket(`ws://${location.host}/ws`);
   ws.onopen = () => { statusEl.textContent = "Conectado"; statusEl.className = "connected"; };
   ws.onclose = () => {
     statusEl.textContent = "Desconectado — reintentando…";
     statusEl.className = "disconnected";
-    setTimeout(connect, 1000);
+    // un solo reintento pendiente a la vez (evita timers apilados)
+    if (!reconnectTimer) reconnectTimer = setTimeout(connect, 1000);
   };
   ws.onerror = () => ws.close();
 }
@@ -60,6 +63,11 @@ pad.addEventListener("touchend", (e) => {
   e.preventDefault();
   if (!moved && (Date.now() - startTime) < TAP_MS && e.touches.length === 0) {
     send({ t: "click", btn: "left" });
+  }
+  // al pasar de 2 dedos a 1, re-anclar para no producir un salto del cursor
+  if (e.touches.length === 1) {
+    lastX = e.touches[0].clientX;
+    lastY = e.touches[0].clientY;
   }
 }, { passive: false });
 

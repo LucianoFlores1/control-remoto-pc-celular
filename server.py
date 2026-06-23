@@ -23,7 +23,7 @@ def _enable_utf8_console():
 
 app = Flask(__name__, static_folder=netutil.resource_path("static"), static_url_path="/static")
 sock = Sock(app)
-controller = InputController()
+controller = None  # se crea en main(); evita instanciar pynput al importar el módulo
 
 
 @app.route("/")
@@ -52,6 +52,8 @@ def print_qr(url):
 
 
 def main():
+    global controller
+    controller = InputController()
     _enable_utf8_console()
     ip = netutil.get_local_ip()
     port = netutil.find_free_port(start=8000)
