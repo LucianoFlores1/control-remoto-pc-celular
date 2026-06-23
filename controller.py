@@ -27,3 +27,40 @@ def dispatch(msg, controller):
                 controller.key(k)
     except (KeyError, TypeError, ValueError):
         return
+
+
+from pynput.mouse import Button, Controller as MouseController
+from pynput.keyboard import Key, Controller as KeyboardController
+
+
+class InputController:
+    """Controlador real: inyecta entrada en Windows con pynput."""
+
+    def __init__(self):
+        self._mouse = MouseController()
+        self._kb = KeyboardController()
+
+    def move(self, dx, dy):
+        self._mouse.move(int(round(dx)), int(round(dy)))
+
+    def click(self, button):
+        btn = Button.left if button == "left" else Button.right
+        self._mouse.click(btn)
+
+    def scroll(self, dy):
+        # pynput: dy positivo sube; en el cliente invertimos para que arrastrar
+        # hacia abajo baje el contenido (lo ajustamos en app.js).
+        self._mouse.scroll(0, int(round(dy)))
+
+    def key(self, name):
+        if name == "win":
+            self._tap(Key.cmd)
+        elif name == "esc":
+            self._tap(Key.esc)
+        elif name == "alttab":
+            with self._kb.pressed(Key.alt):
+                self._tap(Key.tab)
+
+    def _tap(self, key):
+        self._kb.press(key)
+        self._kb.release(key)
