@@ -70,9 +70,21 @@ pad.addEventListener("touchend", (e) => {
   }
 }, { passive: false });
 
-// --- Botones de clic y teclas ---
-document.querySelectorAll("[data-click]").forEach((b) =>
-  b.addEventListener("click", () => send({ t: "click", btn: b.dataset.click })));
+// --- Botones de clic: press al tocar, release al soltar (toque rápido = clic;
+//     mantener apretado + mover el dedo en el pad = arrastrar) ---
+document.querySelectorAll("[data-click]").forEach((b) => {
+  const btn = b.dataset.click;
+  b.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    b.setPointerCapture(e.pointerId);
+    send({ t: "press", btn });
+  });
+  const up = () => send({ t: "release", btn });
+  b.addEventListener("pointerup", up);
+  b.addEventListener("pointercancel", up);
+});
+
+// --- Teclas ---
 document.querySelectorAll("[data-key]").forEach((b) =>
   b.addEventListener("click", () => send({ t: "key", k: b.dataset.key })));
 

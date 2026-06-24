@@ -11,6 +11,12 @@ class FakeController:
     def click(self, button):
         self.calls.append(("click", button))
 
+    def press(self, button):
+        self.calls.append(("press", button))
+
+    def release(self, button):
+        self.calls.append(("release", button))
+
     def scroll(self, dy):
         self.calls.append(("scroll", dy))
 
@@ -32,6 +38,14 @@ def test_click_left_and_right():
     controller.dispatch({"t": "click", "btn": "left"}, c)
     controller.dispatch({"t": "click", "btn": "right"}, c)
     assert c.calls == [("click", "left"), ("click", "right")]
+
+
+def test_press_and_release_for_drag():
+    c = FakeController()
+    controller.dispatch({"t": "press", "btn": "left"}, c)
+    controller.dispatch({"t": "release", "btn": "left"}, c)
+    controller.dispatch({"t": "press", "btn": "middle"}, c)  # inválido: se ignora
+    assert c.calls == [("press", "left"), ("release", "left")]
 
 
 def test_scroll():

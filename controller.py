@@ -23,6 +23,14 @@ def dispatch(msg, controller):
             btn = msg.get("btn")
             if btn in _VALID_BUTTONS:
                 controller.click(btn)
+        elif t == "press":
+            btn = msg.get("btn")
+            if btn in _VALID_BUTTONS:
+                controller.press(btn)
+        elif t == "release":
+            btn = msg.get("btn")
+            if btn in _VALID_BUTTONS:
+                controller.release(btn)
         elif t == "scroll":
             controller.scroll(float(msg["dy"]))
         elif t == "key":
@@ -54,6 +62,14 @@ class InputController:
     def click(self, button):
         btn = Button.left if button == "left" else Button.right
         self._mouse.click(btn)
+
+    def press(self, button):
+        btn = Button.left if button == "left" else Button.right
+        self._mouse.press(btn)
+
+    def release(self, button):
+        btn = Button.left if button == "left" else Button.right
+        self._mouse.release(btn)
 
     def scroll(self, dy):
         # pynput: dy positivo sube; en el cliente invertimos para que arrastrar
@@ -89,11 +105,16 @@ class InputController:
             self._kb.release(Key.alt)         # confirma la ventana elegida
 
     def release_modifiers(self):
-        """Suelta Alt/Shift por si quedaron apretados (ej. el celular se
-        desconectó en medio de la selección de ventanas)."""
+        """Suelta Alt/Shift y los botones del mouse por si quedaron apretados
+        (ej. el celular se desconectó en medio de la selección o de un arrastre)."""
         for mod in (Key.alt, Key.shift):
             try:
                 self._kb.release(mod)
+            except Exception:
+                pass
+        for btn in (Button.left, Button.right):
+            try:
+                self._mouse.release(btn)
             except Exception:
                 pass
 
