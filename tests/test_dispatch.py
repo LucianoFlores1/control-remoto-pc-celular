@@ -17,6 +17,9 @@ class FakeController:
     def key(self, name):
         self.calls.append(("key", name))
 
+    def type(self, text):
+        self.calls.append(("type", text))
+
 
 def test_move_applies_sensitivity():
     c = FakeController()
@@ -54,6 +57,16 @@ def test_alttab_mode_keys():
         ("key", "alttab_prev"),
         ("key", "alttab_done"),
     ]
+
+
+def test_type_and_editing_keys():
+    c = FakeController()
+    controller.dispatch({"t": "type", "s": "hola"}, c)
+    controller.dispatch({"t": "type", "s": ""}, c)        # vacío: se ignora
+    controller.dispatch({"t": "type", "s": 5}, c)         # no-str: se ignora
+    controller.dispatch({"t": "key", "k": "backspace"}, c)
+    controller.dispatch({"t": "key", "k": "enter"}, c)
+    assert c.calls == [("type", "hola"), ("key", "backspace"), ("key", "enter")]
 
 
 def test_unknown_type_is_ignored():

@@ -10,6 +10,7 @@ body { display: flex; flex-direction: column; gap: 8px; padding: 8px; }
 #keys, #clicks, #altpanel { display: flex; gap: 8px; }
 #altpanel { padding: 8px; background: #102a4c; border-radius: 10px; }
 .hidden { display: none; }
+#kbinput { position: fixed; left: -1000px; top: 0; opacity: 0; }
 button { flex: 1; padding: 16px; font-size: 16px; background: #2c2c2e; color: #eee;
          border: none; border-radius: 10px; touch-action: manipulation; }
 button:active { background: #3a82f7; }

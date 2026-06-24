@@ -2,7 +2,7 @@ SENSITIVITY = 1.5
 
 _VALID_BUTTONS = {"left", "right"}
 _VALID_KEYS = {
-    "win", "esc", "alttab",
+    "win", "esc", "alttab", "backspace", "enter",
     # modo selección de ventanas: mantiene Alt apretado entre toques
     "alttab_open", "alttab_next", "alttab_prev", "alttab_done",
 }
@@ -29,6 +29,10 @@ def dispatch(msg, controller):
             k = msg.get("k")
             if k in _VALID_KEYS:
                 controller.key(k)
+        elif t == "type":
+            s = msg.get("s")
+            if isinstance(s, str) and s:
+                controller.type(s)
     except (KeyError, TypeError, ValueError):
         return
 
@@ -56,11 +60,18 @@ class InputController:
         # hacia abajo baje el contenido (lo ajustamos en app.js).
         self._mouse.scroll(0, int(round(dy)))
 
+    def type(self, text):
+        self._kb.type(text)
+
     def key(self, name):
         if name == "win":
             self._tap(Key.cmd)
         elif name == "esc":
             self._tap(Key.esc)
+        elif name == "backspace":
+            self._tap(Key.backspace)
+        elif name == "enter":
+            self._tap(Key.enter)
         elif name == "alttab":
             # cambio rápido a la ventana anterior (un solo Alt+Tab)
             with self._kb.pressed(Key.alt):

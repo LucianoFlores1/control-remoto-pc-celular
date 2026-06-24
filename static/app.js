@@ -54,8 +54,7 @@ pad.addEventListener("touchmove", (e) => {
     const dy = y - twoLastY;
     twoLastY = y;
     moved = true;
-    // arrastrar hacia abajo => contenido baja: invertimos el signo
-    send({ t: "scroll", dy: -dy });
+    send({ t: "scroll", dy });
   }
 }, { passive: false });
 
@@ -76,6 +75,27 @@ document.querySelectorAll("[data-click]").forEach((b) =>
   b.addEventListener("click", () => send({ t: "click", btn: b.dataset.click })));
 document.querySelectorAll("[data-key]").forEach((b) =>
   b.addEventListener("click", () => send({ t: "key", k: b.dataset.key })));
+
+// --- Teclado: input oculto abre el teclado del celular y transmite el tipeo ---
+const kbinput = document.getElementById("kbinput");
+document.getElementById("kbbtn").addEventListener("click", () => {
+  kbinput.value = ""; lastKb = "";
+  kbinput.focus();
+});
+// diff contra el valor previo: maneja escribir y borrar (incluye autocorrección)
+let lastKb = "";
+kbinput.addEventListener("input", () => {
+  const v = kbinput.value;
+  let i = 0;
+  while (i < lastKb.length && i < v.length && lastKb[i] === v[i]) i++;
+  for (let n = 0; n < lastKb.length - i; n++) send({ t: "key", k: "backspace" });
+  const add = v.slice(i);
+  if (add) send({ t: "type", s: add });
+  lastKb = v;
+});
+kbinput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") { e.preventDefault(); send({ t: "key", k: "enter" }); }
+});
 
 // --- Alt+Tab modo selección: Alt queda apretado hasta "Elegir" ---
 const altpanel = document.getElementById("altpanel");
