@@ -15,3 +15,4 @@ button { flex: 1; padding: 16px; font-size: 16px; background: #2c2c2e; color: #e
          border: none; border-radius: 10px; touch-action: manipulation; }
 button:active { background: #3a82f7; }
 #altpanel button { background: #1c4a86; }
+#dragbtn.active { background: #b5651d; }

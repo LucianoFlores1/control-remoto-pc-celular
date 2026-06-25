@@ -27,6 +27,7 @@ let twoLastY = 0;
 let moved = false;
 let startTime = 0;
 let scrollAcc = 0;
+let dragging = false;   // modo arrastre activo (clic izquierdo apretado)
 const TAP_MS = 200;
 const TAP_SLOP = 10;
 const SCROLL_DIV = 12;   // px de dedo por "línea" de scroll (mayor = más lento)
@@ -73,7 +74,7 @@ pad.addEventListener("touchmove", (e) => {
 pad.addEventListener("touchend", (e) => {
   e.preventDefault();
   const tt = e.targetTouches;
-  if (!moved && (Date.now() - startTime) < TAP_MS && tt.length === 0) {
+  if (!dragging && !moved && (Date.now() - startTime) < TAP_MS && tt.length === 0) {
     send({ t: "click", btn: "left" });
   }
   // al pasar de 2 dedos a 1, re-anclar para no producir un salto del cursor
@@ -83,18 +84,18 @@ pad.addEventListener("touchend", (e) => {
   }
 }, { passive: false });
 
-// --- Botones de clic: press al tocar, release al soltar (toque rápido = clic;
-//     mantener apretado + mover el dedo en el pad = arrastrar) ---
-document.querySelectorAll("[data-click]").forEach((b) => {
-  const btn = b.dataset.click;
-  b.addEventListener("pointerdown", (e) => {
-    e.preventDefault();
-    b.setPointerCapture(e.pointerId);
-    send({ t: "press", btn });
-  });
-  const up = () => send({ t: "release", btn });
-  b.addEventListener("pointerup", up);
-  b.addEventListener("pointercancel", up);
+// --- Botones de clic ---
+document.querySelectorAll("[data-click]").forEach((b) =>
+  b.addEventListener("click", () => send({ t: "click", btn: b.dataset.click })));
+
+// --- Arrastrar (toggle): aprieta el clic izquierdo y lo deja apretado; movés
+//     con un dedo en el pad; tocás de nuevo para soltar ---
+const dragbtn = document.getElementById("dragbtn");
+dragbtn.addEventListener("click", () => {
+  dragging = !dragging;
+  send({ t: dragging ? "press" : "release", btn: "left" });
+  dragbtn.classList.toggle("active", dragging);
+  dragbtn.textContent = dragging ? "✋ Soltar" : "✊ Arrastrar";
 });
 
 // --- Teclas ---
