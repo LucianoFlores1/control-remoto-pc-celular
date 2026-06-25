@@ -10,8 +10,6 @@ Convertí tu teléfono Android en un **touchpad inalámbrico** y **teclado remot
   <img src="captura.jpeg" alt="Control Remoto en el celular: touchpad, teclas Win/Esc/Alt+Tab, teclado, clic y arrastrar" width="320">
 </p>
 
-> **Palabras clave:** control remoto PC desde el celular, usar el teléfono como mouse, touchpad inalámbrico WiFi, teclado remoto Android para Windows, remote mouse, wireless touchpad, Android remote control for PC.
-
 ## ✨ Características
 
 - 🖱️ **Touchpad inalámbrico** — mové el cursor deslizando el dedo, tocá para hacer clic.
