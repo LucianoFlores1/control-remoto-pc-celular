@@ -28,7 +28,6 @@ let moved = false;
 let startTime = 0;
 let scrollAcc = 0;
 let dragging = false;   // modo arrastre activo (clic izquierdo apretado)
-let scrollMode = false; // modo scroll: un dedo en el pad desplaza en vez de mover
 const TAP_MS = 200;
 const TAP_SLOP = 10;
 const SCROLL_DIV = 12;   // px de dedo por "línea" de scroll (mayor = más lento)
@@ -45,7 +44,6 @@ pad.addEventListener("touchstart", (e) => {
     lastY = tt[0].clientY;
     moved = false;
     startTime = Date.now();
-    scrollAcc = 0;
   } else if (tt.length === 2) {
     twoLastY = (tt[0].clientY + tt[1].clientY) / 2;
     scrollAcc = 0;
@@ -60,13 +58,7 @@ pad.addEventListener("touchmove", (e) => {
     const dx = x - lastX, dy = y - lastY;
     lastX = x; lastY = y;
     if (Math.abs(dx) > TAP_SLOP || Math.abs(dy) > TAP_SLOP) moved = true;
-    if (scrollMode) {
-      scrollAcc += dy / SCROLL_DIV;
-      const lines = Math.trunc(scrollAcc);
-      if (lines !== 0) { send({ t: "scroll", dy: lines }); scrollAcc -= lines; }
-    } else {
-      send({ t: "move", dx, dy });
-    }
+    send({ t: "move", dx, dy });
   } else if (tt.length === 2) {
     const y = (tt[0].clientY + tt[1].clientY) / 2;
     const dy = y - twoLastY;
@@ -82,7 +74,7 @@ pad.addEventListener("touchmove", (e) => {
 pad.addEventListener("touchend", (e) => {
   e.preventDefault();
   const tt = e.targetTouches;
-  if (!dragging && !scrollMode && !moved && (Date.now() - startTime) < TAP_MS && tt.length === 0) {
+  if (!dragging && !moved && (Date.now() - startTime) < TAP_MS && tt.length === 0) {
     send({ t: "click", btn: "left" });
   }
   // al pasar de 2 dedos a 1, re-anclar para no producir un salto del cursor
@@ -104,13 +96,6 @@ dragbtn.addEventListener("click", () => {
   send({ t: dragging ? "press" : "release", btn: "left" });
   dragbtn.classList.toggle("active", dragging);
   dragbtn.textContent = dragging ? "✋ Soltar" : "✊ Arrastrar";
-});
-
-// --- Scroll (toggle): un dedo en el pad desplaza en vez de mover el cursor ---
-const scrollbtn = document.getElementById("scrollbtn");
-scrollbtn.addEventListener("click", () => {
-  scrollMode = !scrollMode;
-  scrollbtn.classList.toggle("active", scrollMode);
 });
 
 // --- Teclas ---
