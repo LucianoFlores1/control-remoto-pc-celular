@@ -55,6 +55,8 @@ class InputController:
     def __init__(self):
         self._mouse = MouseController()
         self._kb = KeyboardController()
+        self._pressed_buttons = set()  # botones del mouse realmente apretados
+        self._alt_held = False         # Alt apretado por la selección de ventanas
 
     def move(self, dx, dy):
         self._mouse.move(int(round(dx)), int(round(dy)))
@@ -66,10 +68,12 @@ class InputController:
     def press(self, button):
         btn = Button.left if button == "left" else Button.right
         self._mouse.press(btn)
+        self._pressed_buttons.add(btn)
 
     def release(self, button):
         btn = Button.left if button == "left" else Button.right
         self._mouse.release(btn)
+        self._pressed_buttons.discard(btn)
 
     def scroll(self, dy):
         # pynput: dy positivo sube; en el cliente invertimos para que arrastrar
@@ -95,6 +99,7 @@ class InputController:
         elif name == "alttab_open":
             # abre el selector y lo deja abierto (Alt queda apretado)
             self._kb.press(Key.alt)
+            self._alt_held = True
             self._tap(Key.tab)
         elif name == "alttab_next":
             self._tap(Key.tab)               # avanza (Alt sigue apretado)
@@ -103,20 +108,25 @@ class InputController:
                 self._tap(Key.tab)
         elif name == "alttab_done":
             self._kb.release(Key.alt)         # confirma la ventana elegida
+            self._alt_held = False
 
     def release_modifiers(self):
-        """Suelta Alt/Shift y los botones del mouse por si quedaron apretados
-        (ej. el celular se desconectó en medio de la selección o de un arrastre)."""
-        for mod in (Key.alt, Key.shift):
+        """Suelta SOLO lo que realmente quedó apretado (ej. el celular se
+        desconectó/bloqueó en medio de un arrastre o de la selección de
+        ventanas). Soltar un botón que no estaba apretado dispararía un
+        button-up suelto: en el caso del derecho, abre el menú contextual."""
+        if self._alt_held:
             try:
-                self._kb.release(mod)
+                self._kb.release(Key.alt)
             except Exception:
                 pass
-        for btn in (Button.left, Button.right):
+            self._alt_held = False
+        for btn in list(self._pressed_buttons):
             try:
                 self._mouse.release(btn)
             except Exception:
                 pass
+        self._pressed_buttons.clear()
 
     def _tap(self, key):
         self._kb.press(key)
