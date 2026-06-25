@@ -28,8 +28,8 @@ let moved = false;
 let startTime = 0;
 let scrollAcc = 0;
 let dragging = false;   // modo arrastre activo (clic izquierdo apretado)
-const TAP_MS = 200;
-const TAP_SLOP = 10;
+const TAP_MS = 300;
+const TAP_SLOP = 14;
 const SCROLL_DIV = 12;   // px de dedo por "línea" de scroll (mayor = más lento)
 
 pad.addEventListener("touchstart", (e) => {

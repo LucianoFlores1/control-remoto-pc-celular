@@ -26,6 +26,13 @@ sock = Sock(app)
 controller = None  # se crea en main(); evita instanciar pynput al importar el módulo
 
 
+@app.after_request
+def no_cache(resp):
+    # el celular siempre toma la última versión del cliente (evita app.js cacheado)
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return resp
+
+
 @app.route("/")
 def index():
     return send_from_directory(app.static_folder, "index.html")
