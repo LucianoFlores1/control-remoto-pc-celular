@@ -26,11 +26,15 @@ let lastX = 0, lastY = 0;
 let twoLastY = 0;
 let moved = false;
 let startTime = 0;
+let scrollAcc = 0;
 const TAP_MS = 200;
 const TAP_SLOP = 10;
+const SCROLL_DIV = 12;   // px de dedo por "línea" de scroll (mayor = más lento)
 
 pad.addEventListener("touchstart", (e) => {
   e.preventDefault();
+  // si el teclado del celular estaba abierto, cerrarlo al volver al pad
+  if (document.activeElement === kbinput) kbinput.blur();
   if (e.touches.length === 1) {
     lastX = e.touches[0].clientX;
     lastY = e.touches[0].clientY;
@@ -38,6 +42,7 @@ pad.addEventListener("touchstart", (e) => {
     startTime = Date.now();
   } else if (e.touches.length === 2) {
     twoLastY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    scrollAcc = 0;
   }
 }, { passive: false });
 
@@ -54,7 +59,10 @@ pad.addEventListener("touchmove", (e) => {
     const dy = y - twoLastY;
     twoLastY = y;
     moved = true;
-    send({ t: "scroll", dy });
+    // px -> líneas, acumulando el resto para no perder los movimientos chicos
+    scrollAcc += dy / SCROLL_DIV;
+    const lines = Math.trunc(scrollAcc);
+    if (lines !== 0) { send({ t: "scroll", dy: lines }); scrollAcc -= lines; }
   }
 }, { passive: false });
 
